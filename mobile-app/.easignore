@@ -1,0 +1,12 @@
+# Keep Expo cloud uploads self-contained; the parent repository locally excludes
+# untracked top-level folders, but all mobile source files are required to build.
+node_modules/
+.expo/
+dist/
+.env
+.env.*
+!.env.example
+coverage/
+test-results/
+.git/
+.munder-difflin/

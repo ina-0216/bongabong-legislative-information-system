@@ -1,0 +1,1021 @@
+openapi: 3.0.3
+info:
+  title: iBOSys API
+  description: |
+    Sangguniang Bayan of Bongabong, Oriental Mindoro — Integrated Barangay
+    Ordinances & Sessions System. Admin/secretary client on `:5173`, public
+    portal on `:5174`, API server on `:5001` (`/api`).
+
+    > **Note:** This spec is hand-maintained (OpenAPI 3.0.3) and kept in sync
+    > with the actual Express routes in `server/routes/*.js` and Zod schemas in
+    > `server/validations/*.js`. Generated-from-Zod tooling (`zod-to-openapi`) is
+    > incompatible with the project's zod v4 and is intentionally not used.
+  version: 1.0.0
+servers:
+  - url: http://localhost:5001/api
+    description: Local development
+tags:
+  - name: Auth
+  - name: Public
+  - name: Ordinances
+  - name: Sessions
+  - name: Terms
+  - name: Committees
+  - name: SBMembers
+  - name: Users
+  - name: Consultations
+  - name: Notifications
+  - name: Announcements
+  - name: Reports
+
+  - name: System
+paths:
+  # ---------------- AUTH ----------------
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Authenticate and obtain a bearer token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, format: password }
+      responses:
+        '200':
+          description: Success. Returns `{ token, user }`.
+        '401': { description: Invalid credentials }
+  /auth/forgot-password:
+    post:
+      tags: [Auth]
+      summary: Send password reset email
+  /auth/reset-password/{token}:
+    post:
+      tags: [Auth]
+      summary: Reset password using emailed token
+      parameters:
+        - { name: token, in: path, required: true, schema: { type: string } }
+  /auth/seed-admin:
+    post:
+      tags: [Auth]
+      summary: Seed the initial admin account (disabled in production, returns 403)
+  /auth/reset-admin-password:
+    post:
+      tags: [Auth]
+      summary: Reset the admin password via environment secret (disabled in production, returns 403)
+
+  # ---------------- PUBLIC ----------------
+  /public/stats:
+    get:
+      tags: [Public]
+      summary: Public portal headline statistics
+      description: |
+        Counts exclude drafts and measures still in Draft status.
+        `approvedThisYear` uses the Asia/Manila calendar year.
+      responses:
+        '200':
+          description: Public headline statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalOrdinances: { type: integer }
+                  totalResolutions: { type: integer }
+                  approvedOrdinances: { type: integer }
+                  approvedResolutions: { type: integer }
+                  inConsultation: { type: integer }
+                  approvedThisYear: { type: integer }
+  /public/documents:
+    get:
+      tags: [Public]
+      summary: Paginated list of published ordinances for the portal
+      responses:
+        '200':
+          description: Published documents with the supported public-list fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicDocumentPage'
+  /public/documents/{id}:
+    get:
+      tags: [Public]
+      summary: A single published ordinance with public consultation info
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Published document detail with sessions and public consultation totals
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicDocumentDetail'
+  /public/latest:
+    get:
+      tags: [Public]
+      summary: Recently published documents
+  /public/sessions:
+    get:
+      tags: [Public]
+      summary: Published session minutes
+  /public/recent-sessions:
+    get:
+      tags: [Public]
+      summary: Most recent session records
+  /public/minutes/{sessionId}:
+    get:
+      tags: [Public]
+      summary: Public minutes detail
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema: { type: string }
+  /public/members:
+    get:
+      tags: [Public]
+      summary: Sangguniang Bayan members roster
+  /public/committees:
+    get:
+      tags: [Public]
+      summary: Committee list
+  /public/terms:
+    get:
+      tags: [Public]
+      summary: Legislative terms
+  /public/news:
+    get:
+      tags: [Public]
+      summary: Latest announcements
+  /public/news/featured:
+    get:
+      tags: [Public]
+      summary: Featured announcements
+  /public/news/{id}:
+    get:
+      tags: [Public]
+      summary: Announcement detail
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+  /public/send-otp:
+    post:
+      tags: [Public]
+      summary: Send OTP for guest feedback verification
+  /public/consult/{id}/guest:
+    post:
+      tags: [Public]
+      summary: Submit guest consultation feedback for an ordinance; returns feedback ID and private receipt token
+  /public/consult/{id}/status:
+    post:
+      tags: [Public]
+      summary: Check eligibility and comment review status using feedback ID and receipt token in the request body
+  /public/consult/{id}/appeal:
+    post:
+      tags: [Public]
+      summary: Appeal a rejected eligibility or comment decision using a private receipt token
+  /public/consult/{id}/public:
+    get:
+      tags: [Public]
+      summary: Public consultation status/results for an ordinance (approved feedback only)
+
+  # ---------------- ORDINANCES ----------------
+  /ordinances:
+    get:
+      tags: [Ordinances]
+      summary: List ordinances with filters, search, pagination
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: search, in: query, schema: { type: string }, description: Case-insensitive match on title or number }
+        - { name: status, in: query, schema: { type: string }, description: Exact workflow status }
+        - { name: type, in: query, schema: { type: string, enum: [Ordinance, Resolution] } }
+        - { name: committee, in: query, schema: { type: string } }
+        - { name: sectorTag, in: query, schema: { type: string } }
+        - { name: termId, in: query, schema: { type: string } }
+        - { name: isDraft, in: query, schema: { type: boolean }, description: When omitted, both drafts and non-drafts are returned }
+        - { name: isLocked, in: query, schema: { type: boolean } }
+        - { name: year, in: query, schema: { type: integer }, description: Four-digit calendar year (Asia/Manila) }
+        - { name: date, in: query, schema: { type: string, format: date }, description: Single calendar day in YYYY-MM-DD (Asia/Manila) }
+        - { name: page, in: query, schema: { type: integer, minimum: 1 }, description: Default 1 }
+        - { name: limit, in: query, schema: { type: integer, minimum: 0 }, description: Default 20; use 0 for all }
+      responses:
+        '200':
+          description: Paginated result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  docs:
+                    type: array
+                    items: { $ref: '#/components/schemas/Ordinance' }
+                  total: { type: integer }
+                  page: { type: integer }
+                  pages:
+                    type: integer
+                    nullable: true
+                    description: Total pages; null when limit is 0 (all results)
+    post:
+      tags: [Ordinances]
+      summary: Create an ordinance/resolution
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { $ref: '#/components/schemas/OrdinanceInput' }
+      responses:
+        '201': { description: Created }
+  /ordinances/stats:
+    get:
+      tags: [Ordinances]
+      summary: Dashboard statistics
+      description: |
+        Aggregated counts plus committee, term, year and proponent breakdowns.
+        Drafts are excluded from `approved`, `rejected`, `inProgress`,
+        `consultation`, `byProponent` and `byProponentOutcomes`;
+        `byProponent` and `byProponentOutcomes` return the top 8 proponents.
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Aggregated measure statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total: { type: integer }
+                  totalOrdinances: { type: integer }
+                  totalResolutions: { type: integer }
+                  approved: { type: integer, description: Non-draft measures with status Approved }
+                  rejected:
+                    type: integer
+                    description: Non-draft measures whose adoptionResult is "Rejected" (case-insensitive)
+                  inProgress: { type: integer, description: Non-draft measures not yet Approved or Draft }
+                  drafts: { type: integer }
+                  consultation: { type: integer, description: Non-draft measures in Public Consultation }
+                  byCommittee:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id: { type: string, nullable: true }
+                        count: { type: integer }
+                  byYear:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id: { type: integer, nullable: true }
+                        count: { type: integer }
+                  byTerm:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id: { type: string }
+                        termId: { type: string, nullable: true }
+                        startYear: { type: integer }
+                        count: { type: integer }
+                  byProponent:
+                    type: array
+                    description: Top 8 non-draft proponents by total measures
+                    items:
+                      type: object
+                      properties:
+                        name: { type: string }
+                        count: { type: integer }
+                  byProponentOutcomes:
+                    type: array
+                    description: Top 8 non-draft proponents by approved plus rejected measures
+                    items:
+                      type: object
+                      properties:
+                        name: { type: string }
+                        approved: { type: integer }
+                        rejected: { type: integer }
+                  sentimentOverview:
+                    type: object
+                    properties:
+                      Agree: { type: integer }
+                      Disagree: { type: integer }
+                      Neutral: { type: integer }
+                      total: { type: integer }
+  /ordinances/{id}:
+    get:
+      tags: [Ordinances]
+      summary: Ordinance detail
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+    put:
+      tags: [Ordinances]
+      summary: Update ordinance (multipart)
+      security: [{ bearerAuth: [] }]
+  /ordinances/{id}/status:
+    put:
+      tags: [Ordinances]
+      summary: Advance or set status (writes timeline entry)
+      security: [{ bearerAuth: [] }]
+  /ordinances/{id}/amend:
+    put:
+      tags: [Ordinances]
+      summary: Link an amending ordinance
+      security: [{ bearerAuth: [] }]
+  /ordinances/{id}/committee-report:
+    put:
+      tags: [Ordinances]
+      summary: Save/capture committee hearing report
+      security: [{ bearerAuth: [] }]
+  /ordinances/{id}/generate-pdf:
+    get:
+      tags: [Ordinances]
+      summary: Download the ordinance PDF
+      security: [{ bearerAuth: [] }]
+  /ordinances/backfill-translations:
+    post:
+      tags: [Ordinances]
+      summary: Backfill Tagalog translations (admin maintenance)
+      security: [{ bearerAuth: [] }]
+
+  # ---------------- SESSIONS ----------------
+  /sessions:
+    get:
+      tags: [Sessions]
+      summary: List session minutes
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: search, in: query, schema: { type: string, maxLength: 100 }, description: Matches title, or a parsable date }
+        - { name: page, in: query, schema: { type: integer, minimum: 1 }, description: Default 1 }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100 }, description: Default 20 }
+      responses:
+        '200':
+          description: Paginated result, newest first
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  docs:
+                    type: array
+                    items: { $ref: '#/components/schemas/Session' }
+                  total: { type: integer }
+                  page: { type: integer }
+                  pages: { type: integer, minimum: 1 }
+        '400': { description: Invalid page, limit, or search }
+    post:
+      tags: [Sessions]
+      summary: Create a session
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, date]
+              properties:
+                title: { type: string }
+                date: { type: string, format: date-time }
+                sessionNumber: { type: string }
+                sessionType: { type: string, description: Default "Regular Session" }
+                legislativeBody: { type: string, description: Default "12th Sangguniang Bayan" }
+                venue: { type: string }
+                municipality: { type: string, description: Default "Bongabong, Oriental Mindoro" }
+                itemsDiscussed:
+                  type: array
+                  description: Existing Ordinance/Resolution ids to link
+                  items: { type: string }
+                attendance:
+                  type: object
+                  description: May also be sent as a JSON-encoded string
+                  properties:
+                    present: { type: array, items: { type: string } }
+                    onOfficialBusiness: { type: array, items: { type: string } }
+                    absent: { type: array, items: { type: string } }
+                status: { type: string, enum: [Draft, Final], description: Default Draft }
+                callToOrder: { type: string }
+                invocation: { type: string }
+                rollCall: { type: string }
+                readingOfPreviousMinutes: { type: string }
+                orderOfBusiness: { type: string }
+                privilegeHour: { type: string }
+                citizensHour: { type: string }
+                questionHour: { type: string }
+                committeeReport: { type: string }
+                firstReading: { type: string }
+                unfinishedBusiness: { type: string }
+                referralForAction: { type: string }
+                referralForReference: { type: string }
+                referenceOfBusiness: { type: string }
+                otherMatters: { type: string }
+                thanksgivingPrayer: { type: string }
+                adjournment: { type: string }
+      responses:
+        '201':
+          description: Created session
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+        '400': { description: Missing required fields, or an unknown discussed item or attendance member id }
+  /sessions/{id}:
+    get:
+      tags: [Sessions]
+      summary: Session detail
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Session document with populated creator, discussed items, and attendance
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+        '404': { description: Session not found }
+    put:
+      tags: [Sessions]
+      summary: Update session
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Only supplied fields are updated.
+              properties:
+                title: { type: string }
+                date: { type: string, format: date-time }
+                sessionNumber: { type: string }
+                sessionType: { type: string }
+                legislativeBody: { type: string }
+                venue: { type: string }
+                municipality: { type: string }
+                itemsDiscussed:
+                  type: array
+                  description: Existing Ordinance/Resolution ids to link
+                  items: { type: string }
+                attendance:
+                  type: object
+                  description: May also be sent as a JSON-encoded string
+                  properties:
+                    present: { type: array, items: { type: string } }
+                    onOfficialBusiness: { type: array, items: { type: string } }
+                    absent: { type: array, items: { type: string } }
+                status: { type: string, enum: [Draft, Final] }
+                callToOrder: { type: string }
+                invocation: { type: string }
+                rollCall: { type: string }
+                readingOfPreviousMinutes: { type: string }
+                orderOfBusiness: { type: string }
+                privilegeHour: { type: string }
+                citizensHour: { type: string }
+                questionHour: { type: string }
+                committeeReport: { type: string }
+                firstReading: { type: string }
+                unfinishedBusiness: { type: string }
+                referralForAction: { type: string }
+                referralForReference: { type: string }
+                referenceOfBusiness: { type: string }
+                otherMatters: { type: string }
+                thanksgivingPrayer: { type: string }
+                adjournment: { type: string }
+      responses:
+        '200':
+          description: Updated session
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+        '400': { description: Invalid discussed item or attendance member id }
+        '404': { description: Session not found }
+    delete:
+      tags: [Sessions]
+      summary: Delete session
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+        '404': { description: Session not found }
+        '409':
+          description: Blocked because one or more ordinance timeline records reference this session
+  /sessions/{id}/generate-pdf:
+    get:
+      tags: [Sessions]
+      summary: Download the session minutes PDF
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Session minutes as a PDF download
+          content:
+            application/pdf:
+              schema: { type: string, format: binary }
+        '404': { description: Session not found }
+
+  # ---------------- TERMS ----------------
+  /terms:
+    get:
+      tags: [Terms]
+      summary: List legislative terms
+      description: Public. Returns all terms sorted by starting year (descending).
+      responses:
+        '200':
+          description: Terms
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Term' }
+    post:
+      tags: [Terms]
+      summary: Create a term
+      description: Secretary or system admin. Also creates the term's committees and syncs the Vice Mayor member record.
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TermInput' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Term' }
+        '400': { description: Validation error (term span is not exactly three years, or invalid year) }
+        '409': { description: Term overlaps an existing legislative term }
+  /terms/{id}:
+    get:
+      tags: [Terms]
+      summary: Get a term by ID
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Term
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Term' }
+        '404': { description: Term not found }
+    put:
+      tags: [Terms]
+      summary: Update a term
+      description: Secretary or system admin. Date changes are blocked once ordinances or members are linked to the term.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TermUpdate' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Term' }
+        '400': { description: Invalid term ID or term span is not exactly three years }
+        '404': { description: Term not found }
+        '409': { description: Term overlaps an existing term, or dates cannot change because records are linked }
+    delete:
+      tags: [Terms]
+      summary: Delete a term
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+        '404': { description: Term not found }
+        '409': { description: Term has linked ordinances, members, or committees }
+
+  # ---------------- COMMITTEES ----------------
+  /committees:
+    get:
+      tags: [Committees]
+      summary: List committees
+      security: [{ bearerAuth: [] }]
+    put:
+      tags: [Committees]
+      summary: Update committee by ID
+      security: [{ bearerAuth: [] }]
+  /committees/{id}:
+    put:
+      tags: [Committees]
+      summary: Update committee by ID
+      security: [{ bearerAuth: [] }]
+  /committees/migrate-2025:
+    post:
+      tags: [Committees]
+      summary: Migrate/seed 2025-2028 committee data (system admin only)
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Migration results
+
+  # ---------------- SB MEMBERS ----------------
+  /sbmembers:
+    get:
+      tags: [SBMembers]
+      summary: List members (filter by termId)
+      security: [{ bearerAuth: [] }]
+    post:
+      tags: [SBMembers]
+      summary: Create a member (multipart with photo)
+      security: [{ bearerAuth: [] }]
+  /sbmembers/{id}:
+    put:
+      tags: [SBMembers]
+      summary: Update member (multipart with photo)
+      security: [{ bearerAuth: [] }]
+    delete:
+      tags: [SBMembers]
+      summary: Delete member
+      security: [{ bearerAuth: [] }]
+
+  # ---------------- USERS ----------------
+  /users:
+    get:
+      tags: [Users]
+      summary: List users (admin only)
+      security: [{ bearerAuth: [] }]
+    post:
+      tags: [Users]
+      summary: Create a user (admin only)
+      security: [{ bearerAuth: [] }]
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Current logged-in user
+      security: [{ bearerAuth: [] }]
+  /users/profile:
+    put:
+      tags: [Users]
+      summary: Update own profile
+      security: [{ bearerAuth: [] }]
+  /users/avatar:
+    put:
+      tags: [Users]
+      summary: Upload avatar (multipart)
+      security: [{ bearerAuth: [] }]
+  /users/{id}/reset-password:
+    put:
+      tags: [Users]
+      summary: Admin resets a user's password
+      security: [{ bearerAuth: [] }]
+  /users/{id}/status:
+    put:
+      tags: [Users]
+      summary: Activate/deactivate a user (admin only)
+      security: [{ bearerAuth: [] }]
+  /users/{id}/password:
+    put:
+      tags: [Users]
+      summary: Change own password
+      security: [{ bearerAuth: [] }]
+
+  # ---------------- CONSULTATIONS ----------------
+  /consultations/pending:
+    get:
+      tags: [Consultations]
+      summary: Submissions awaiting eligibility or comment review, with assignment and advisory scan summary
+      security: [{ bearerAuth: [] }]
+  /consultations/{id}/verify:
+    put:
+      tags: [Consultations]
+      summary: Independently review eligibility or comment visibility; rejection requests need a second reviewer
+      security: [{ bearerAuth: [] }]
+  /consultations/ordinance/{ordinanceId}/feedback:
+    get:
+      tags: [Consultations]
+      summary: Aggregated consultation analytics for an ordinance
+      security: [{ bearerAuth: [] }]
+
+  # ---------------- NOTIFICATIONS ----------------
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: Current user's notifications
+      security: [{ bearerAuth: [] }]
+  /notifications/read-all:
+    put:
+      tags: [Notifications]
+      summary: Mark all read
+      security: [{ bearerAuth: [] }]
+  /notifications/{id}/read:
+    put:
+      tags: [Notifications]
+      summary: Mark one notification read
+      security: [{ bearerAuth: [] }]
+
+  # ---------------- ANNOUNCEMENTS ----------------
+  /announcements:
+    get:
+      tags: [Announcements]
+      summary: List announcements (admin)
+      security: [{ bearerAuth: [] }]
+    post:
+      tags: [Announcements]
+      summary: Create announcement (multipart with coverImage)
+      security: [{ bearerAuth: [] }]
+  /announcements/{id}:
+    get:
+      tags: [Announcements]
+      summary: Get announcement by ID (admin)
+      security: [{ bearerAuth: [] }]
+    put:
+      tags: [Announcements]
+      summary: Update announcement (multipart with coverImage)
+      security: [{ bearerAuth: [] }]
+    delete:
+      tags: [Announcements]
+      summary: Delete announcement (system admin only)
+      security: [{ bearerAuth: [] }]
+  /announcements/{id}/toggle-publish:
+    patch:
+      tags: [Announcements]
+      summary: Toggle publish state
+      security: [{ bearerAuth: [] }]
+
+  # ---------------- REPORTS ----------------
+  /reports/committee/{ordinanceId}:
+    get:
+      tags: [Reports]
+      summary: Committee report PDF for an ordinance
+      security: [{ bearerAuth: [] }]
+  /reports/annual:
+    get:
+      tags: [Reports]
+      summary: Annual ordinance report PDF
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: year, in: query, schema: { type: integer } }
+  /reports/participation/{ordinanceId}:
+    get:
+      tags: [Reports]
+      summary: Participation report PDF
+      security: [{ bearerAuth: [] }]
+  /reports/timeline/{ordinanceId}:
+    get:
+      tags: [Reports]
+      summary: Legislative timeline report PDF
+      security: [{ bearerAuth: [] }]
+  /reports/minutes/{sessionId}:
+    get:
+      tags: [Reports]
+      summary: Official minutes PDF
+      security: [{ bearerAuth: [] }]
+  /reports/document/{id}:
+    get:
+      tags: [Reports]
+      summary: Full document PDF for download
+      security: [{ bearerAuth: [] }]
+
+
+  # ---------------- SYSTEM (Admin Utilities) ----------------
+  /system/sync-vice-mayors:
+    post:
+      tags: [System]
+      summary: Sync vice mayor assignments (system admin only)
+      security: [{ bearerAuth: [] }]
+  /system/migrate-committees:
+    post:
+      tags: [System]
+      summary: Migrate committee data (system admin only)
+      security: [{ bearerAuth: [] }]
+
+  # ---------------- HEALTH ----------------
+  /health:
+    get:
+      tags: [System]
+      summary: Health check (DB + Redis)
+      responses:
+        '200':
+          description: Healthy
+        '503':
+          description: Degraded (DB or Redis down)
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Term:
+      type: object
+      properties:
+        _id: { type: string }
+        label: { type: string, description: Derived as "<startYear>-<endYear> Term". }
+        startYear: { type: integer }
+        endYear: { type: integer }
+        description: { type: string }
+        presidingOfficer: { type: string }
+        isCurrent: { type: boolean }
+        isUpcoming: { type: boolean }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    TermInput:
+      type: object
+      required: [startYear, endYear]
+      properties:
+        startYear: { type: integer, minimum: 1900 }
+        endYear: { type: integer, minimum: 1900 }
+        presidingOfficer: { type: string }
+        description: { type: string }
+        label: { type: string, description: Ignored; the API derives it as "<startYear>-<endYear> Term". }
+    TermUpdate:
+      type: object
+      properties:
+        startYear: { type: integer, minimum: 1900 }
+        endYear: { type: integer, minimum: 1900 }
+        presidingOfficer: { type: string }
+        description: { type: string }
+        label: { type: string, description: Ignored; the API derives it as "<startYear>-<endYear> Term". }
+    SBMember:
+      type: object
+      properties:
+        _id: { type: string }
+        firstName: { type: string }
+        middleName: { type: string }
+        lastName: { type: string }
+        position: { type: string }
+        termId: { type: string }
+        order: { type: integer }
+        photo: { type: string }
+    Committee:
+      type: object
+      properties:
+        _id: { type: string }
+        name: { type: string }
+        chairperson: { type: string }
+        viceChairperson: { type: string }
+        members: { type: array, items: { type: string } }
+        termId: { type: string }
+    PublicDocumentPage:
+      type: object
+      required: [docs, total, page, pages]
+      properties:
+        docs:
+          type: array
+          items: { $ref: '#/components/schemas/PublicDocument' }
+        total: { type: integer }
+        page: { type: integer }
+        pages: { type: integer }
+    PublicDocumentDetail:
+      allOf:
+        - { $ref: '#/components/schemas/PublicDocument' }
+        - type: object
+          properties:
+            sessions:
+              type: array
+              items:
+                type: object
+                properties:
+                  _id: { type: string }
+                  title: { type: string }
+                  date: { type: string, format: date-time }
+                  status: { type: string }
+            tally:
+              type: object
+              properties:
+                Agree: { type: integer }
+                Disagree: { type: integer }
+                Neutral: { type: integer }
+            totalVotes: { type: integer }
+    PublicDocument:
+      type: object
+      required: [_id, type, number, title, status, committee, createdAt]
+      properties:
+        _id: { type: string }
+        type: { type: string, enum: [Ordinance, Resolution] }
+        number: { type: string }
+        title: { type: string }
+        title_tl: { type: string }
+        status: { type: string }
+        committee: { type: string }
+        sectorTag: { type: string }
+        createdAt: { type: string, format: date-time }
+        filedAt: { type: string, format: date-time }
+        effectivityDate: { type: string, format: date-time }
+        plainLanguageSummary: { type: string }
+        plainLanguageSummary_tl: { type: string }
+        pdfUrl: { type: string }
+        proponentId:
+          oneOf:
+            - { type: string }
+            - type: object
+              properties:
+                _id: { type: string }
+                firstName: { type: string }
+                middleName: { type: string }
+                lastName: { type: string }
+        coAuthors:
+          type: array
+          items:
+            oneOf:
+              - { type: string }
+              - type: object
+                properties:
+                  _id: { type: string }
+                  firstName: { type: string }
+                  middleName: { type: string }
+                  lastName: { type: string }
+        amendsOrdinanceId:
+          description: Earlier measure reference, populated when available
+          nullable: true
+          oneOf:
+            - { type: string }
+            - type: object
+              properties:
+                _id: { type: string }
+                number: { type: string }
+                title: { type: string }
+        amendedByOrdinanceId:
+          description: Later measure reference, populated when available
+          nullable: true
+          oneOf:
+            - { type: string }
+            - type: object
+              properties:
+                _id: { type: string }
+                number: { type: string }
+                title: { type: string }
+    Ordinance:
+      type: object
+      properties:
+        _id: { type: string }
+        type: { type: string, enum: [Ordinance, Resolution] }
+        number: { type: string }
+        title: { type: string }
+        title_tl: { type: string }
+        proponentId: { type: string }
+        committee: { type: string }
+        sectorTag: { type: string }
+        status: { type: string }
+        isLocked: { type: boolean }
+        termId: { type: string }
+    OrdinanceInput:
+      type: object
+      properties:
+        title: { type: string }
+        title_tl: { type: string }
+        type: { type: string, enum: [Ordinance, Resolution] }
+        number: { type: string }
+        proponentId: { type: string }
+        committee: { type: string }
+        sectorTag: { type: string }
+        explanatoryNote: { type: string }
+        enactingClause: { type: string }
+        provisions: { type: string }
+        penaltyClause: { type: string }
+        effectivityDate: { type: string }
+        plainLanguageSummary: { type: string }
+        plainLanguageSummary_tl: { type: string }
+        termId: { type: string }
+    Session:
+      type: object
+      properties:
+        _id: { type: string }
+        title: { type: string }
+        date: { type: string, format: date }
+        attendance:
+          type: object
+          properties:
+            present: { type: array, items: { type: string } }
+            onOfficialBusiness: { type: array, items: { type: string } }
+            absent: { type: array, items: { type: string } }
+    Paginated:
+      type: object
+      properties:
+        docs: { type: array, items: { type: object } }
+        total: { type: integer }
+        max: { type: integer }
+        pages: { type: integer }
+  parameters:
+    Id: { name: id, in: path, required: true, schema: { type: string } }
+
+security:
+  - bearerAuth: []

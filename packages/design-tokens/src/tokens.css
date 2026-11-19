@@ -1,0 +1,333 @@
+/**
+ * iBOSys Design Tokens - CSS Custom Properties
+ * Import this in your global CSS: @import '@ibosys/design-tokens/css';
+ * Then use with Tailwind v4: @theme { --color-primary: var(--ibosys-primary-500); }
+ */
+
+:root {
+  /* Primary - Philippine Civic Blue */
+  --ibosys-primary-50: #eef3fb;
+  --ibosys-primary-100: #d9e4f1;
+  --ibosys-primary-200: #bdc8d4;
+  --ibosys-primary-300: #8d9db3;
+  --ibosys-primary-400: #5d7292;
+  --ibosys-primary-500: #1f4f9d;
+  --ibosys-primary-600: #193f7e;
+  --ibosys-primary-700: #132f5e;
+  --ibosys-primary-800: #0e1f3f;
+  --ibosys-primary-900: #09101f;
+  --ibosys-primary-950: #050810;
+
+  /* Accent - Gold */
+  --ibosys-accent-50: #fffbf0;
+  --ibosys-accent-100: #fff3d1;
+  --ibosys-accent-200: #ffe6a3;
+  --ibosys-accent-300: #ffd975;
+  --ibosys-accent-400: #ffcc47;
+  --ibosys-accent-500: #d4a72c;
+  --ibosys-accent-600: #b88626;
+  --ibosys-accent-700: #9c6520;
+  --ibosys-accent-800: #80441a;
+  --ibosys-accent-900: #642214;
+  --ibosys-accent-950: #32110a;
+
+  /* Semantic */
+  --ibosys-success-50: #ecfdf5;
+  --ibosys-success-100: #d1fae5;
+  --ibosys-success-500: #10b981;
+  --ibosys-success-600: #059669;
+  --ibosys-success-700: #047857;
+
+  --ibosys-warning-50: #fffbeb;
+  --ibosys-warning-100: #fef3c7;
+  --ibosys-warning-500: #f59e0b;
+  --ibosys-warning-600: #d97706;
+  --ibosys-warning-700: #b45309;
+
+  --ibosys-danger-50: #fef2f2;
+  --ibosys-danger-100: #fee2e2;
+  --ibosys-danger-500: #ef4444;
+  --ibosys-danger-600: #dc2626;
+  --ibosys-danger-700: #b91c1c;
+
+  /* Neutral */
+  --ibosys-neutral-0: #ffffff;
+  --ibosys-neutral-50: #fafafa;
+  --ibosys-neutral-100: #f5f5f5;
+  --ibosys-neutral-200: #e5e5e5;
+  --ibosys-neutral-300: #d4d4d4;
+  --ibosys-neutral-400: #a3a3a3;
+  --ibosys-neutral-500: #737373;
+  --ibosys-neutral-600: #525252;
+  --ibosys-neutral-700: #404040;
+  --ibosys-neutral-800: #262626;
+  --ibosys-neutral-900: #171717;
+  --ibosys-neutral-950: #0a0a0a;
+
+  /* Surface aliases */
+  --ibosys-surface-primary: #ffffff;
+  --ibosys-surface-secondary: #f7f8fb;
+  --ibosys-surface-tertiary: #f0f2f5;
+  --ibosys-surface-inverse: #171717;
+
+  /* Text */
+  --ibosys-text-primary: #171717;
+  --ibosys-text-secondary: #525252;
+  --ibosys-text-tertiary: #6b6b6b;
+  --ibosys-text-inverse: #ffffff;
+  --ibosys-text-link: #1f4f9d;
+  --ibosys-text-link-hover: #132f5e;
+
+  /* Border */
+  --ibosys-border-light: #e5e5e5;
+  --ibosys-border-default: #d4d4d4;
+  --ibosys-border-dark: #a3a3a3;
+  --ibosys-border-focus: #1f4f9d;
+
+  /* Semantic aliases (bare) - referenced by consumer @theme mappings */
+  --ibosys-primary: var(--ibosys-primary-500);
+  --ibosys-primary-foreground: #ffffff;
+
+  --ibosys-success: var(--ibosys-success-500);
+  --ibosys-success-foreground: #ffffff;
+
+  --ibosys-warning: var(--ibosys-warning-500);
+  --ibosys-warning-foreground: #ffffff;
+
+  --ibosys-danger: var(--ibosys-danger-500);
+  --ibosys-danger-foreground: #ffffff;
+
+  --ibosys-text-muted: var(--ibosys-text-tertiary);
+
+  /* Spacing (4px base) */
+  --ibosys-space-0: 0;
+  --ibosys-space-1: 4px;
+  --ibosys-space-2: 8px;
+  --ibosys-space-3: 12px;
+  --ibosys-space-4: 16px;
+  --ibosys-space-5: 20px;
+  --ibosys-space-6: 24px;
+  --ibosys-space-8: 32px;
+  --ibosys-space-10: 40px;
+  --ibosys-space-12: 48px;
+  --ibosys-space-16: 64px;
+  --ibosys-space-20: 80px;
+  --ibosys-space-24: 96px;
+
+  /* Radius */
+  --ibosys-radius-none: 0;
+  --ibosys-radius-sm: 4px;
+  --ibosys-radius-md: 8px;
+  --ibosys-radius-lg: 10px;
+  --ibosys-radius-xl: 12px;
+  --ibosys-radius-2xl: 16px;
+  --ibosys-radius-full: 9999px;
+
+  /* Shadows */
+  --ibosys-shadow-xs: 0 1px 2px rgba(20, 31, 63, 0.05);
+  --ibosys-shadow-sm: 0 2px 8px rgba(20, 31, 63, 0.08);
+  --ibosys-shadow-md: 0 4px 16px rgba(20, 31, 63, 0.10);
+  --ibosys-shadow-lg: 0 8px 32px rgba(20, 31, 63, 0.12);
+  --ibosys-shadow-xl: 0 16px 48px rgba(20, 31, 63, 0.15);
+  --ibosys-shadow-focus: 0 0 0 3px rgba(31, 79, 157, 0.22);
+
+  /* Typography */
+  --ibosys-font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  --ibosys-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+
+  --ibosys-text-xs: 12px;
+  --ibosys-text-sm: 14px;
+  --ibosys-text-base: 16px;
+  --ibosys-text-lg: 18px;
+  --ibosys-text-xl: 20px;
+  --ibosys-text-2xl: 24px;
+  --ibosys-text-3xl: 30px;
+  --ibosys-text-4xl: 36px;
+  --ibosys-text-5xl: 48px;
+
+  --ibosys-leading-tight: 1.1;
+  --ibosys-leading-normal: 1.5;
+  --ibosys-leading-relaxed: 1.75;
+
+  --ibosys-font-normal: 400;
+  --ibosys-font-medium: 500;
+  --ibosys-font-semibold: 600;
+  --ibosys-font-bold: 700;
+
+  /* Breakpoints */
+  --ibosys-bp-sm: 640px;
+  --ibosys-bp-md: 768px;
+  --ibosys-bp-lg: 1024px;
+  --ibosys-bp-xl: 1280px;
+  --ibosys-bp-2xl: 1536px;
+
+  /* Transitions */
+  --ibosys-transition-fast: 150ms ease;
+  --ibosys-transition-normal: 200ms ease;
+  --ibosys-transition-slow: 300ms ease;
+
+  /* Z-index */
+  --ibosys-z-dropdown: 100;
+  --ibosys-z-sticky: 200;
+  --ibosys-z-modal: 300;
+  --ibosys-z-popover: 400;
+  --ibosys-z-toast: 500;
+  --ibosys-z-tooltip: 600;
+
+  /* Component tokens */
+  --ibosys-btn-height-sm: 36px;
+  --ibosys-btn-height-md: 44px;
+  --ibosys-btn-height-lg: 52px;
+  --ibosys-btn-padding-sm: 0 12px;
+  --ibosys-btn-padding-md: 0 16px;
+  --ibosys-btn-padding-lg: 0 24px;
+
+  --ibosys-input-height-sm: 36px;
+  --ibosys-input-height-md: 44px;
+  --ibosys-input-height-lg: 52px;
+  --ibosys-input-padding: 0 12px;
+
+  --ibosys-card-padding: 24px;
+  --ibosys-card-gap: 16px;
+
+  --ibosys-badge-font-size: 11px;
+  --ibosys-badge-font-weight: 600;
+  --ibosys-badge-padding: 3px 8px;
+  --ibosys-badge-padding-x: 8px;
+  --ibosys-badge-padding-y: 3px;
+  --ibosys-badge-radius: 9999px;
+
+  /* Status colors */
+  --ibosys-status-draft-bg: #fff3d1;
+  --ibosys-status-draft-text: #9c6520;
+  --ibosys-status-draft-border: #ffe6a3;
+
+  --ibosys-status-pending-bg: #d9e4f1;
+  --ibosys-status-pending-text: #193f7e;
+  --ibosys-status-pending-border: #bdc8d4;
+
+  --ibosys-status-approved-bg: #ecfdf5;
+  --ibosys-status-approved-text: #047857;
+  --ibosys-status-approved-border: #d1fae5;
+
+  --ibosys-status-rejected-bg: #fef2f2;
+  --ibosys-status-rejected-text: #b91c1c;
+  --ibosys-status-rejected-border: #fee2e2;
+
+  --ibosys-status-consultation-bg: #fffbeb;
+  --ibosys-status-consultation-text: #b45309;
+  --ibosys-status-consultation-border: #fef3c7;
+
+  /* Legislative stages */
+  --ibosys-status-first-reading-bg: #eef3fb;
+  --ibosys-status-first-reading-text: #132f5e;
+  --ibosys-status-first-reading-border: #d9e4f1;
+
+  --ibosys-status-committee-assignment-bg: #ecfeff;
+  --ibosys-status-committee-assignment-text: #164e63;
+  --ibosys-status-committee-assignment-border: #cffafe;
+
+  --ibosys-status-committee-hearing-bg: #faf5ff;
+  --ibosys-status-committee-hearing-text: #6b21a8;
+  --ibosys-status-committee-hearing-border: #e9d5ff;
+
+  --ibosys-status-second-reading-bg: #fff7ed;
+  --ibosys-status-second-reading-text: #9a3412;
+  --ibosys-status-second-reading-border: #ffedd5;
+
+  --ibosys-status-third-reading-bg: #fefce8;
+  --ibosys-status-third-reading-text: #854d0e;
+  --ibosys-status-third-reading-border: #fef08a;
+
+  --ibosys-status-mayor-signature-bg: #f5f3ff;
+  --ibosys-status-mayor-signature-text: #5b21b6;
+  --ibosys-status-mayor-signature-border: #ddd6fe;
+
+  --ibosys-status-sp-review-bg: #dbeafe;
+  --ibosys-status-sp-review-text: #1e40af;
+  --ibosys-status-sp-review-border: #bfdbfe;
+
+  --ibosys-status-active-bg: #ecfdf5;
+  --ibosys-status-active-text: #047857;
+  --ibosys-status-active-border: #d1fae5;
+
+  --ibosys-status-deactivated-bg: #fef2f2;
+  --ibosys-status-deactivated-text: #b91c1c;
+  --ibosys-status-deactivated-border: #fee2e2;
+
+  --ibosys-status-amended-bg: #fff1f2;
+  --ibosys-status-amended-text: #9f1239;
+  --ibosys-status-amended-border: #ffe4e6;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Focus visible polyfill for consistent focus styles */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 3px solid var(--ibosys-border-focus);
+  outline-offset: 2px;
+}
+
+/* Skip link for keyboard navigation */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--ibosys-space-3) var(--ibosys-space-4);
+  background: var(--ibosys-surface-primary);
+  color: var(--ibosys-text-primary);
+  font-weight: var(--ibosys-font-semibold);
+  border-radius: var(--ibosys-radius-md);
+  box-shadow: var(--ibosys-shadow-lg);
+  z-index: var(--ibosys-z-tooltip);
+  transition: top var(--ibosys-transition-fast);
+}
+
+.skip-link:focus {
+  top: var(--ibosys-space-4);
+}
+
+/* Selection colors */
+::selection {
+  background: var(--ibosys-primary-200);
+  color: var(--ibosys-primary-900);
+}
+
+/* Scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ibosys-neutral-300) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--ibosys-neutral-300);
+  border-radius: var(--ibosys-radius-full);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--ibosys-neutral-400);
+}

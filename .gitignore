@@ -1,0 +1,92 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+build/
+
+# Secrets — never commit these
+.env
+.env.*
+!.env.example
+
+# Test / coverage artifacts
+coverage/
+*.lcov
+test-results/
+playwright-report/
+screenshots/
+diff/
+*.diff.png
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime + OS cruft
+uploads/
+tmp/
+temp/
+test-db/
+server/local-mongo-db/
+.vercel/
+.expo/
+backups/
+*.dump
+*.bson
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Munder-Difflin transient runtime state
+.munder-difflin/
+.munder-difflin/execution/client-sessions/
+.munder-difflin/checkpoints/
+.munder-difflin/state/*.tmp-*
+
+# Agent knowledge / personal notes
+SecondBrain/
+
+# Scratch / design artifacts
+mockups/
+.stitch/
+review-shots/
+public-portal/staging/
+public-portal/review-shots/
+public-portal/.visual-baseline/current/
+public-portal/.visual-baseline/diff/
+public-portal/.visual-baseline/*archive*/
+public-portal/.visual-baseline/breadcrumb-baseline-review/
+public-portal/.visual-baseline/crumb-vertical-adjustment/
+public-portal/.visual-baseline/feedback-focus-padding/
+public-portal/.visual-baseline/feedback-form-layout-review/
+public-portal/.visual-baseline/home-paired-sections-review/
+public-portal/.visual-baseline/news-section-review/
+
+# Local agent workspaces and presentation exports
+/.agents/
+/.worktrees/
+/presentation-video-folder/
+
+# Capstone manuscripts (do not commit)
+*.pdf
+*.docx
+!docs/*.pdf
+!docs/*.docx
+
+# Misc large artifacts
+images/

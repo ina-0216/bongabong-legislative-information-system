@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "B-LIS Public Portal",
+    "slug": "ibosys-public-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "web": {
+      "output": "single"
+    },
+    "scheme": "blis",
+    "icon": "./assets/bongabong-seal.png",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "ph.gov.bongabong.ibosys.publicportal",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/bongabong-seal.png",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "plugins": [
+      [
+        "expo-router",
+        {
+          "asyncRoutes": {
+            "web": false
+          }
+        }
+      ],
+      "expo-status-bar",
+      "expo-font",
+      "expo-sharing"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "39b309a5-0501-41a7-b789-d5f1768bedab"
+      }
+    },
+    "owner": "kraysantus-team"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "name": "ibosys-server",
+  "version": "1.0.0",
+  "description": "iBOSys Backend API Server",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "postinstall": "node scripts/applyMammothPatch.js",
+    "db:migrate-ordinance-sections": "node scripts/migrateOrdinanceSectionsToProvisions.js",
+    "db:migrate-ordinance-sections:apply": "node scripts/migrateOrdinanceSectionsToProvisions.js --apply",
+    "db:migrate-local-atlas": "node scripts/migrateLocalMongoToAtlas.js",
+    "db:migrate-local-atlas:apply": "node scripts/migrateLocalMongoToAtlas.js --apply",
+    "db:migrate-consultation-ids": "node scripts/migrateConsultationIdsPrivate.js",
+    "db:migrate-consultation-ids:apply": "node scripts/migrateConsultationIdsPrivate.js --apply",
+    "test": "vitest",
+    "pretest:ci": "node scripts/applyMammothPatch.js",
+    "test:run": "vitest run",
+    "test:ci": "vitest run --maxWorkers=1",
+    "lint": "eslint .",
+    "seed": "node config/seedIdempotent.js",
+    "backup": "node scripts/backupDb.js",
+    "db:migrate-term-integrity:apply": "node scripts/migrateTermIntegrity.js --apply",
+    "db:migrate-term-integrity": "node scripts/migrateTermIntegrity.js",
+    "rollback": "node scripts/rollback.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.11.0",
+    "cors": "^2.8.5",
+    "docx": "^9.13.0",
+    "dompurify": "^3.4.17",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-async-handler": "^1.2.0",
+    "express-rate-limit": "^8.6.2",
+    "helmet": "^8.3.0",
+    "ioredis": "^6.0.0",
+    "jsdom": "^30.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.13.0",
+    "mongoose": "^8.4.1",
+    "multer": "^2.5.0",
+    "node-cron": "^4.6.0",
+    "nodemailer": "^10.0.13",
+    "pdf-lib": "1.17.1",
+    "pdf-parse": "^2.4.5",
+    "pdfkit": "^0.15.0",
+    "puppeteer": "^25.2.1",
+    "tesseract.js": "^7.0.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0",
+    "mongodb-memory-server": "^11.3.0",
+    "supertest": "^7.3.0",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  },
+  "overrides": {
+    "mammoth": {
+      "argparse": "3.0.3"
+    }
+  }
+}

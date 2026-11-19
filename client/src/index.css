@@ -1,0 +1,223 @@
+@import "tailwindcss";
+@import "@ibosys/design-tokens/tokens.css";
+@source "../../packages/ui/src";
+
+@theme {
+  --font-sans: var(--ibosys-font-sans);
+  --font-mono: var(--ibosys-font-mono);
+
+  /* ── Semantic surface / text / border tokens ────────────── */
+  /* These are required for Tailwind v4 utilities like bg-card,  */
+  /* bg-background, text-foreground, border-border to work.      */
+  --color-background: var(--ibosys-neutral-50);
+  --color-foreground: var(--ibosys-text-primary);
+
+  --color-card: var(--ibosys-surface-primary);
+  --color-card-foreground: var(--ibosys-text-primary);
+
+  --color-popover: var(--ibosys-surface-primary);
+  --color-popover-foreground: var(--ibosys-text-primary);
+
+  --color-muted: var(--ibosys-neutral-100);
+  --color-muted-foreground: var(--ibosys-text-muted);
+
+  --color-secondary: var(--ibosys-neutral-100);
+  --color-secondary-foreground: var(--ibosys-text-primary);
+
+  --color-border: var(--ibosys-border-default);
+  --color-input: var(--ibosys-border-default);
+  --color-ring: var(--ibosys-primary);
+
+  --color-destructive: var(--ibosys-danger);
+  --color-destructive-foreground: var(--ibosys-danger-foreground);
+
+  /* Sidebar */
+  --color-sidebar: var(--ibosys-primary-500);
+  --color-sidebar-foreground: #ffffff;
+  --color-sidebar-primary: #f4d35e;
+  --color-sidebar-primary-foreground: var(--ibosys-primary-900);
+  --color-sidebar-accent: rgb(255 255 255 / 12%);
+  --color-sidebar-accent-foreground: #ffffff;
+  --color-sidebar-border: rgb(255 255 255 / 14%);
+
+  /* ── Palette tokens ─────────────────────────────────────── */
+  --color-primary: var(--ibosys-primary-500);
+  --color-primary-foreground: var(--ibosys-primary-foreground);
+  --color-primary-50: var(--ibosys-primary-50);
+  --color-primary-100: var(--ibosys-primary-100);
+  --color-primary-200: var(--ibosys-primary-200);
+  --color-primary-300: var(--ibosys-primary-300);
+  --color-primary-400: var(--ibosys-primary-400);
+  --color-primary-500: var(--ibosys-primary-500);
+  --color-primary-600: var(--ibosys-primary-600);
+  --color-primary-700: var(--ibosys-primary-700);
+  --color-primary-800: var(--ibosys-primary-800);
+  --color-primary-900: var(--ibosys-primary-900);
+  --color-primary-950: var(--ibosys-primary-950);
+
+  --color-accent: var(--ibosys-accent-500);
+  --color-accent-50: var(--ibosys-accent-50);
+  --color-accent-100: var(--ibosys-accent-100);
+  --color-accent-200: var(--ibosys-accent-200);
+  --color-accent-300: var(--ibosys-accent-300);
+  --color-accent-400: var(--ibosys-accent-400);
+  --color-accent-500: var(--ibosys-accent-500);
+  --color-accent-600: var(--ibosys-accent-600);
+  --color-accent-700: var(--ibosys-accent-700);
+  --color-accent-800: var(--ibosys-accent-800);
+  --color-accent-900: var(--ibosys-accent-900);
+  --color-accent-950: var(--ibosys-accent-950);
+
+  --color-success: var(--ibosys-success);
+  --color-success-foreground: var(--ibosys-success-foreground);
+  --color-success-50: var(--ibosys-success-50);
+  --color-success-500: var(--ibosys-success-500);
+  --color-success-600: var(--ibosys-success-600);
+
+  --color-warning: var(--ibosys-warning);
+  --color-warning-foreground: var(--ibosys-warning-foreground);
+  --color-warning-50: var(--ibosys-warning-50);
+  --color-warning-500: var(--ibosys-warning-500);
+
+  --color-danger: var(--ibosys-danger);
+  --color-danger-foreground: var(--ibosys-danger-foreground);
+  --color-danger-50: var(--ibosys-danger-50);
+  --color-danger-500: var(--ibosys-danger-500);
+  --color-danger-600: var(--ibosys-danger-600);
+
+  --color-surface-primary: var(--ibosys-surface-primary);
+  --color-surface-secondary: var(--ibosys-surface-secondary);
+  --color-surface-tertiary: var(--ibosys-surface-tertiary);
+
+  --color-text-primary: var(--ibosys-text-primary);
+  --color-text-secondary: var(--ibosys-text-secondary);
+  --color-text-muted: var(--ibosys-text-muted);
+
+  --color-border-default: var(--ibosys-border-default);
+  --color-border-light: var(--ibosys-border-light);
+  --color-border-dark: var(--ibosys-border-dark);
+  --color-border-focus: var(--ibosys-border-focus);
+
+  --shadow-xs: var(--ibosys-shadow-xs);
+  --shadow-sm: var(--ibosys-shadow-sm);
+  --shadow-md: var(--ibosys-shadow-md);
+  --shadow-lg: var(--ibosys-shadow-lg);
+  --shadow-xl: var(--ibosys-shadow-xl);
+
+  --radius-sm: var(--ibosys-radius-sm);
+  --radius-md: var(--ibosys-radius-md);
+  --radius-lg: var(--ibosys-radius-lg);
+  --radius-xl: var(--ibosys-radius-xl);
+  --radius-full: var(--ibosys-radius-full);
+
+  --space-1: var(--ibosys-space-1);
+  --space-2: var(--ibosys-space-2);
+  --space-3: var(--ibosys-space-3);
+  --space-4: var(--ibosys-space-4);
+  --space-5: var(--ibosys-space-5);
+  --space-6: var(--ibosys-space-6);
+  --space-8: var(--ibosys-space-8);
+  --space-10: var(--ibosys-space-10);
+  --space-12: var(--ibosys-space-12);
+  --space-16: var(--ibosys-space-16);
+  --space-20: var(--ibosys-space-20);
+  --space-24: var(--ibosys-space-24);
+
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  --transition-fast: var(--ibosys-transition-fast);
+  --transition-normal: var(--ibosys-transition-normal);
+  --transition-slow: var(--ibosys-transition-slow);
+}
+
+:root {
+  --background: var(--ibosys-neutral-50);
+  --foreground: var(--ibosys-text-primary);
+
+  --card: var(--ibosys-surface-primary);
+  --card-foreground: var(--ibosys-text-primary);
+
+  --popover: var(--ibosys-surface-primary);
+  --popover-foreground: var(--ibosys-text-primary);
+
+  --primary: var(--ibosys-primary);
+  --primary-foreground: var(--ibosys-primary-foreground);
+
+  --secondary: var(--ibosys-neutral-100);
+  --secondary-foreground: var(--ibosys-text-primary);
+
+  --muted: var(--ibosys-neutral-100);
+  --muted-foreground: var(--ibosys-text-muted);
+
+  --accent: var(--ibosys-accent-50);
+  --accent-foreground: var(--ibosys-accent-900);
+
+  --destructive: var(--ibosys-danger);
+  --destructive-foreground: var(--ibosys-danger-foreground);
+
+  --border: var(--ibosys-border-default);
+  --input: var(--ibosys-border-default);
+  --ring: var(--ibosys-primary);
+
+  --radius: var(--ibosys-radius-md);
+
+  --sidebar-background: var(--ibosys-primary-500);
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #f4d35e;
+  --sidebar-primary-foreground: var(--ibosys-primary-900);
+  --sidebar-accent: rgb(255 255 255 / 12%);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgb(255 255 255 / 14%);
+  --sidebar-ring: var(--ibosys-primary);
+
+  /* Text aliases used by inline component styles */
+  --text-primary: var(--ibosys-text-primary);
+  --text-secondary: var(--ibosys-text-secondary);
+  --text-muted: var(--ibosys-text-muted);
+
+  /* Accent glow for timeline current-step pill */
+  --accent-glow: var(--ibosys-primary-100);
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--background);
+  color: var(--foreground);
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Hide scrollbar utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Admin shell — uses design tokens */
+.admin-shell {
+  border-radius: var(--radius-lg);
+}
+.admin-shell table thead { letter-spacing: .08em; }
+.admin-shell button:focus-visible,
+.admin-shell a:focus-visible,
+.admin-shell input:focus-visible,
+.admin-shell select:focus-visible,
+.admin-shell textarea:focus-visible {
+  outline: 3px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+@media (max-width: 767px) {
+  .admin-shell .text-2xl { font-size: 1.35rem; }
+  .admin-shell .grid-cols-2 { grid-template-columns: 1fr; }
+  .admin-shell .overflow-x-auto { scrollbar-width: thin; }
+}

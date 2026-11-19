@@ -1,0 +1,450 @@
+/* The portal uses the shared system sans stack for predictable, readable
+   typography without external font requests. */
+
+@import "tailwindcss";
+@import "./v11.css";
+@import "@ibosys/design-tokens/tokens.css";
+@source "../../packages/ui/src";
+@config "../tailwind.config.js";
+
+/* Portal-only brand palette. Keep the shared token package unchanged so the
+   admin and mobile applications retain their own established colors. */
+:root {
+  --portal-brand-navy: #191F47;
+  --portal-brand-gold: #D3A84C;
+
+  --ibosys-primary-50: color-mix(in srgb, var(--portal-brand-navy) 4%, var(--ibosys-surface-primary));
+  --ibosys-primary-100: color-mix(in srgb, var(--portal-brand-navy) 9%, var(--ibosys-surface-primary));
+  --ibosys-primary-200: color-mix(in srgb, var(--portal-brand-navy) 18%, var(--ibosys-surface-primary));
+  --ibosys-primary-300: color-mix(in srgb, var(--portal-brand-navy) 32%, var(--ibosys-surface-primary));
+  --ibosys-primary-400: color-mix(in srgb, var(--portal-brand-navy) 58%, var(--ibosys-surface-primary));
+  --ibosys-primary-500: var(--portal-brand-navy);
+  --ibosys-primary-600: color-mix(in srgb, var(--portal-brand-navy) 90%, var(--ibosys-text-primary));
+  --ibosys-primary-700: color-mix(in srgb, var(--portal-brand-navy) 80%, var(--ibosys-text-primary));
+  --ibosys-primary-800: color-mix(in srgb, var(--portal-brand-navy) 68%, var(--ibosys-text-primary));
+  --ibosys-primary-900: color-mix(in srgb, var(--portal-brand-navy) 54%, var(--ibosys-text-primary));
+  --ibosys-primary-950: color-mix(in srgb, var(--portal-brand-navy) 40%, var(--ibosys-text-primary));
+
+  --ibosys-accent-50: color-mix(in srgb, var(--portal-brand-gold) 5%, var(--ibosys-surface-primary));
+  --ibosys-accent-100: color-mix(in srgb, var(--portal-brand-gold) 12%, var(--ibosys-surface-primary));
+  --ibosys-accent-200: color-mix(in srgb, var(--portal-brand-gold) 24%, var(--ibosys-surface-primary));
+  --ibosys-accent-300: color-mix(in srgb, var(--portal-brand-gold) 40%, var(--ibosys-surface-primary));
+  --ibosys-accent-400: color-mix(in srgb, var(--portal-brand-gold) 65%, var(--ibosys-surface-primary));
+  --ibosys-accent-500: var(--portal-brand-gold);
+  --ibosys-accent-600: color-mix(in srgb, var(--portal-brand-gold) 88%, var(--ibosys-text-primary));
+  --ibosys-accent-700: color-mix(in srgb, var(--portal-brand-gold) 74%, var(--ibosys-text-primary));
+  --ibosys-accent-800: color-mix(in srgb, var(--portal-brand-gold) 58%, var(--ibosys-text-primary));
+  --ibosys-accent-900: color-mix(in srgb, var(--portal-brand-gold) 42%, var(--ibosys-text-primary));
+  --ibosys-accent-950: color-mix(in srgb, var(--portal-brand-gold) 28%, var(--ibosys-text-primary));
+
+  /* Warning keeps its semantic meaning, using the portal's gold family. */
+  --ibosys-warning-50: var(--ibosys-accent-50);
+  --ibosys-warning-100: var(--ibosys-accent-100);
+  --ibosys-warning-300: var(--ibosys-accent-300);
+  --ibosys-warning-400: var(--ibosys-accent-400);
+  --ibosys-warning-500: var(--portal-brand-gold);
+  --ibosys-warning-600: var(--ibosys-accent-700);
+  --ibosys-warning-700: var(--ibosys-accent-800);
+
+  --ibosys-text-link: var(--portal-brand-navy);
+  --ibosys-text-link-hover: var(--ibosys-primary-700);
+  --ibosys-border-focus: var(--portal-brand-navy);
+
+  /* Keep the v11 dark bands and gold highlights on the exact brand colors. */
+  --v11-navy: var(--portal-brand-navy);
+  --v11-navy-2: var(--ibosys-primary-900);
+  --v11-gold: var(--portal-brand-gold);
+  --v11-gold-bright: var(--portal-brand-gold);
+}
+
+/* ============================================================
+   Tailwind v4 Theme Tokens - aligned with @ibosys/design-tokens
+   ============================================================ */
+@theme {
+  /* Colors - map to design tokens */
+  --color-primary: var(--ibosys-primary-500);
+  --color-primary-50: var(--ibosys-primary-50);
+  --color-primary-100: var(--ibosys-primary-100);
+  --color-primary-200: var(--ibosys-primary-200);
+  --color-primary-300: var(--ibosys-primary-300);
+  --color-primary-400: var(--ibosys-primary-400);
+  --color-primary-500: var(--ibosys-primary-500);
+  --color-primary-600: var(--ibosys-primary-600);
+  --color-primary-700: var(--ibosys-primary-700);
+  --color-primary-800: var(--ibosys-primary-800);
+  --color-primary-900: var(--ibosys-primary-900);
+  --color-primary-950: var(--ibosys-primary-950);
+
+  --color-accent: var(--ibosys-accent-500);
+  --color-accent-50: var(--ibosys-accent-50);
+  --color-accent-100: var(--ibosys-accent-100);
+  --color-accent-200: var(--ibosys-accent-200);
+  --color-accent-300: var(--ibosys-accent-300);
+  --color-accent-400: var(--ibosys-accent-400);
+  --color-accent-500: var(--ibosys-accent-500);
+  --color-accent-600: var(--ibosys-accent-600);
+  --color-accent-700: var(--ibosys-accent-700);
+  --color-accent-800: var(--ibosys-accent-800);
+  --color-accent-900: var(--ibosys-accent-900);
+  --color-accent-950: var(--ibosys-accent-950);
+
+  --color-success: var(--ibosys-success-500);
+  --color-success-50: var(--ibosys-success-50);
+  --color-success-100: var(--ibosys-success-100);
+  --color-success-500: var(--ibosys-success-500);
+  --color-success-600: var(--ibosys-success-600);
+  --color-success-700: var(--ibosys-success-700);
+
+  --color-warning: var(--ibosys-warning-500);
+  --color-warning-50: var(--ibosys-warning-50);
+  --color-warning-100: var(--ibosys-warning-100);
+  --color-warning-500: var(--ibosys-warning-500);
+  --color-warning-600: var(--ibosys-warning-600);
+  --color-warning-700: var(--ibosys-warning-700);
+
+  --color-danger: var(--ibosys-danger-500);
+  --color-danger-50: var(--ibosys-danger-50);
+  --color-danger-100: var(--ibosys-danger-100);
+  --color-danger-500: var(--ibosys-danger-500);
+  --color-danger-600: var(--ibosys-danger-600);
+  --color-danger-700: var(--ibosys-danger-700);
+
+  /* Neutral */
+  --color-neutral-0: var(--ibosys-neutral-0);
+  --color-neutral-50: var(--ibosys-neutral-50);
+  --color-neutral-100: var(--ibosys-neutral-100);
+  --color-neutral-200: var(--ibosys-neutral-200);
+  --color-neutral-300: var(--ibosys-neutral-300);
+  --color-neutral-400: var(--ibosys-neutral-400);
+  --color-neutral-500: var(--ibosys-neutral-500);
+  --color-neutral-600: var(--ibosys-neutral-600);
+  --color-neutral-700: var(--ibosys-neutral-700);
+  --color-neutral-800: var(--ibosys-neutral-800);
+  --color-neutral-900: var(--ibosys-neutral-900);
+  --color-neutral-950: var(--ibosys-neutral-950);
+
+  /* Surface aliases */
+  --color-surface-primary: var(--ibosys-surface-primary);
+  --color-surface-secondary: var(--ibosys-surface-secondary);
+  --color-surface-tertiary: var(--ibosys-surface-tertiary);
+  --color-surface-inverse: var(--ibosys-surface-inverse);
+
+  /* Text */
+  --color-text-primary: var(--ibosys-text-primary);
+  --color-text-secondary: var(--ibosys-text-secondary);
+  --color-text-tertiary: var(--ibosys-text-tertiary);
+  --color-text-inverse: var(--ibosys-text-inverse);
+  --color-text-link: var(--ibosys-text-link);
+  --color-text-link-hover: var(--ibosys-text-link-hover);
+
+  /* Border */
+  --color-border-light: var(--ibosys-border-light);
+  --color-border-default: var(--ibosys-border-default);
+  --color-border-dark: var(--ibosys-border-dark);
+  --color-border-focus: var(--ibosys-border-focus);
+
+  /* Spacing */
+  --spacing-0: var(--ibosys-space-0);
+  --spacing-1: var(--ibosys-space-1);
+  --spacing-2: var(--ibosys-space-2);
+  --spacing-3: var(--ibosys-space-3);
+  --spacing-4: var(--ibosys-space-4);
+  --spacing-5: var(--ibosys-space-5);
+  --spacing-6: var(--ibosys-space-6);
+  --spacing-8: var(--ibosys-space-8);
+  --spacing-10: var(--ibosys-space-10);
+  --spacing-12: var(--ibosys-space-12);
+  --spacing-16: var(--ibosys-space-16);
+  --spacing-20: var(--ibosys-space-20);
+  --spacing-24: var(--ibosys-space-24);
+
+  /* Radius */
+  --radius-DEFAULT: var(--ibosys-radius-md);
+  --radius-none: var(--ibosys-radius-none);
+  --radius-sm: var(--ibosys-radius-sm);
+  --radius-md: var(--ibosys-radius-md);
+  --radius-lg: var(--ibosys-radius-lg);
+  --radius-xl: var(--ibosys-radius-xl);
+  --radius-2xl: var(--ibosys-radius-2xl);
+  --radius-full: var(--ibosys-radius-full);
+
+  /* Shadows */
+  --shadow-xs: var(--ibosys-shadow-xs);
+  --shadow-sm: var(--ibosys-shadow-sm);
+  --shadow-md: var(--ibosys-shadow-md);
+  --shadow-lg: var(--ibosys-shadow-lg);
+  --shadow-xl: var(--ibosys-shadow-xl);
+  --shadow-focus: var(--ibosys-shadow-focus);
+
+  /* Typography - families */
+  --font-sans: var(--ibosys-font-sans);
+  --font-mono: var(--ibosys-font-mono);
+  /* Keep heading utilities on the same clear family as body copy. */
+  --font-serif: var(--font-sans);
+
+  --text-xs: var(--ibosys-text-xs);
+  --text-sm: var(--ibosys-text-sm);
+  --text-base: var(--ibosys-text-base);
+  --text-lg: var(--ibosys-text-lg);
+  --text-xl: var(--ibosys-text-xl);
+  --text-2xl: var(--ibosys-text-2xl);
+  --text-3xl: var(--ibosys-text-3xl);
+  --text-4xl: var(--ibosys-text-4xl);
+  --text-5xl: var(--ibosys-text-5xl);
+
+  --leading-tight: var(--ibosys-leading-tight);
+  --leading-normal: var(--ibosys-leading-normal);
+  --leading-relaxed: var(--ibosys-leading-relaxed);
+
+  /* Weights must live in the --font-weight-* namespace. Declaring them as
+     --font-bold made Tailwind emit `.font-bold{font-family:700}`, which is
+     invalid and was silently discarded. */
+  --font-weight-normal: var(--ibosys-font-normal);
+  --font-weight-medium: var(--ibosys-font-medium);
+  --font-weight-semibold: var(--ibosys-font-semibold);
+  --font-weight-bold: var(--ibosys-font-bold);
+
+  /* Breakpoints - use actual values for lightningcss compatibility */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  /* Transitions */
+  --transition-fast: var(--ibosys-transition-fast);
+  --transition-normal: var(--ibosys-transition-normal);
+  --transition-slow: var(--ibosys-transition-slow);
+
+  /* Z-index */
+  --z-dropdown: var(--ibosys-z-dropdown);
+  --z-sticky: var(--ibosys-z-sticky);
+  --z-modal: var(--ibosys-z-modal);
+  --z-popover: var(--ibosys-z-popover);
+  --z-toast: var(--ibosys-z-toast);
+  --z-tooltip: var(--ibosys-z-tooltip);
+}
+
+/* ------------------------------------------------------------
+   Gap-fill for ramps the shared token package does not publish yet.
+
+   @ibosys/design-tokens ships warning 50/100/500/600/700 and
+   success/danger 50/100/500/600/700 only. The portal consumes
+   warning-300 and warning-400 (footer labels, footer link hover,
+   caption eyebrow, notice strip) plus success-200 and danger-200
+   (GuestForm chip borders).
+
+   These are derived from the published steps with color-mix so no
+   literal hex is reintroduced. Delete this block once the package
+   publishes the full ramps.
+   ------------------------------------------------------------ */
+:root {
+  --ibosys-warning-300: color-mix(in srgb, var(--ibosys-warning-500) 68%, var(--ibosys-surface-primary));
+  --ibosys-warning-400: color-mix(in srgb, var(--ibosys-warning-500) 82%, var(--ibosys-surface-primary));
+  --ibosys-success-200: color-mix(in srgb, var(--ibosys-success-500) 22%, var(--ibosys-surface-primary));
+  --ibosys-danger-200: color-mix(in srgb, var(--ibosys-danger-500) 22%, var(--ibosys-surface-primary));
+}
+
+/* ============================================================
+   iBOSys Public Portal — Base Styles
+
+   Colour, spacing, radius, shadow and type values resolve to the shared
+   @ibosys/design-tokens properties, with the portal-only navy and gold
+   palette defined above.
+   ============================================================ */
+
+@layer base {
+  /* Reset */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body {
+    font-family: var(--font-sans);
+    background: var(--ibosys-surface-secondary);
+    color: var(--ibosys-text-primary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  img { max-width: 100%; height: auto; display: block; }
+  a { text-decoration: none; transition: color var(--transition-fast); color: inherit; }
+
+  /* Layout */
+  .app-container { display: flex; flex-direction: column; min-height: 100vh; }
+  .main-content { flex: 1; padding-top: 0; }
+
+  .container {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+}
+
+/* Navbar */
+.portal-nav {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  background: color-mix(in srgb, var(--ibosys-surface-primary) 96%, transparent);
+  border-bottom: 1px solid var(--ibosys-border-default);
+  backdrop-filter: blur(10px);
+}
+.portal-nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 26px;
+  width: min(1180px, calc(100% - 32px));
+  min-height: 74px;
+  margin: 0 auto;
+}
+.portal-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ibosys-primary-800);
+  text-decoration: none;
+}
+.portal-brand .brand-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  background: var(--ibosys-primary-500);
+  color: var(--ibosys-text-inverse);
+  font-family: var(--font-sans);
+  font-size: 1.15rem;
+  font-weight: var(--font-weight-bold);
+  /* 2px, matching v11. This value was --radius-md and relied on v11 overriding
+     it at higher specificity; agreeing at source means a specificity change can
+     never resurface the old radius. */
+  border-radius: 2px;
+}
+.portal-brand .brand-seal { width: 34px; height: 34px; object-fit: contain; flex: none; }
+.portal-brand strong {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 1.45rem;
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+}
+.portal-brand small {
+  display: block;
+  margin-top: 4px;
+  color: var(--ibosys-text-tertiary);
+  font-size: .61rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.portal-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+.portal-nav-links a {
+  padding: 27px 0 23px;
+  border-bottom: 3px solid transparent;
+  color: var(--ibosys-text-tertiary);
+  font-size: .78rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.portal-nav-links a:hover,
+.portal-nav-links a.active {
+  border-bottom-color: var(--ibosys-danger-500);
+  color: var(--ibosys-danger-500);
+}
+.portal-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.portal-menu-button {
+  display: none;
+  padding: 8px;
+  border: 1px solid var(--ibosys-border-default);
+  background: var(--color-surface-primary);
+  color: var(--ibosys-primary-500);
+  cursor: pointer;
+  /* 2px, matching v11 — see the note on .portal-brand .brand-mark. */
+  border-radius: 2px;
+}
+.portal-mobile-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 16px 16px;
+  border-top: 1px solid var(--ibosys-border-light);
+  background: var(--color-surface-primary);
+}
+.portal-mobile-nav a {
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--ibosys-border-light);
+  color: var(--ibosys-text-tertiary);
+  font-size: .9rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.portal-mobile-nav a.active {
+  color: var(--ibosys-primary-500);
+}
+
+@media (max-width: 1360px) {
+  .portal-nav-links { display: none; }
+  .portal-menu-button { display: grid; place-items: center; }
+}
+
+.portal-notice-strip {
+  padding: 8px 24px;
+  color: var(--ibosys-primary-100);
+  background: var(--ibosys-primary-800);
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-align: center;
+}
+.portal-notice-strip span { margin: 0 6px; color: var(--ibosys-warning-400); }
+.portal-footer {
+  margin-top: 72px;
+  color: var(--ibosys-primary-100);
+  background: var(--ibosys-primary-800);
+}
+.portal-footer-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1.5fr .9fr;
+  gap: 48px;
+  padding-top: 44px;
+  padding-bottom: 36px;
+}
+.portal-footer-brand { display: flex; align-items: center; gap: 12px; }
+.portal-footer-mark {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  color: var(--ibosys-primary-800);
+  background: var(--ibosys-primary-100);
+  /* Was 9px, the only off-system radius left in the cascade. v11 already
+     overrode this at higher specificity; agreeing at source closes the gap. */
+  border-radius: 2px;
+  font-weight: 800;
+}
+.portal-footer-seal { width: 42px; height: 42px; object-fit: contain; flex: none; }
+.portal-footer-title { margin: 0; color: var(--ibosys-text-inverse); font-size: 1.25rem; font-weight: 800; }
+.portal-footer-subtitle { margin: 3px 0 0; color: var(--ibosys-primary-200); font-size: .72rem; }
+.portal-footer-label { margin: 0 0 16px; color: var(--ibosys-warning-400); font-size: .68rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.portal-footer-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 22px; }
+.portal-footer-links a { color: var(--ibosys-primary-100); font-size: .78rem; font-weight: 600; }
+.portal-footer-links a:hover { color: var(--ibosys-warning-300); }
+.portal-footer-contact { display: grid; gap: 10px; }
+.portal-footer-contact p:not(.portal-footer-label), .portal-footer-contact a { display: flex; align-items: flex-start; gap: 8px; margin: 0; color: var(--ibosys-primary-100); font-size: .78rem; line-height: 1.5; }
+.portal-footer-contact a:hover { color: var(--ibosys-warning-300); }
+.portal-footer-bottom { display: flex; justify-content: space-between; gap: 20px; padding-top: 16px; padding-bottom: 18px; border-top: 1px solid var(--ibosys-primary-700); color: var(--ibosys-primary-300); font-size: .68rem; }
+@media (max-width: 800px) {
+  .portal-footer-grid { grid-template-columns: 1fr 1fr; gap: 30px; }
+  .portal-footer-contact { grid-column: span 2; }
+  .portal-footer-bottom { flex-direction: column; gap: 6px; }
+}
+@media (max-width: 520px) {
+  .portal-footer-grid { grid-template-columns: 1fr; }
+  .portal-footer-contact { grid-column: auto; }
+}

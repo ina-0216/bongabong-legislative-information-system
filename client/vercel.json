@@ -1,0 +1,15 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm ci && npm --prefix ../packages/design-tokens ci && npm --prefix ../packages/ui ci && npm --prefix ../packages/api ci",
+  "buildCommand": "npm --prefix ../packages/design-tokens run build && npm --prefix ../packages/ui run build && npm --prefix ../packages/api run build && npm run build",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    }
+  ]
+}

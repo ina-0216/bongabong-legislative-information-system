@@ -1,0 +1,318 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  # Current locked jsdom dependencies require Node 22.22.2 or newer.
+  NODE_VERSION: '22.23.2'
+
+jobs:
+  # Shared packages must build BEFORE the apps: both apps resolve @ibosys/*
+  # to ../packages/*/dist via Vite aliases, and neither app builds them.
+  build-packages:
+    name: Build Shared Packages
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # slug: artifact names may not contain '/', so the directory path
+          # cannot be interpolated directly into an artifact name.
+          - dir: packages/design-tokens
+            name: Design Tokens
+            slug: design-tokens
+          - dir: packages/ui
+            name: UI Components
+            slug: ui
+          # No @ibosys/* dependency, so this builds in parallel with the others.
+          - dir: packages/api
+            name: API Client
+            slug: api
+    defaults:
+      run:
+        working-directory: ${{ matrix.dir }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.dir }}/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      # Hand the compiled dist to the app jobs so they can build/test.
+      - name: Upload shared package dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: shared-dist-${{ matrix.slug }}
+          path: ${{ matrix.dir }}/dist
+          retention-days: 1
+
+  packages-ui-test:
+    name: UI Components Test
+    needs: build-packages
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/ui
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: packages/ui/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # NOTE: packages/ui currently ships zero test files. passWithNoTests keeps
+      # the pipeline honest without masking a real failure once tests land.
+      - name: Test
+        run: npm run test
+
+  lint-build-test:
+    name: ${{ matrix.name }}
+    needs: build-packages
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ matrix.dir }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - dir: server
+            name: Server
+            slug: server
+            node-version: '22.23.2'
+            build: false
+            lint: true
+            test: true
+          - dir: client
+            name: Client (Admin)
+            slug: client
+            node-version: '22.23.2'
+            build: true
+            lint: true
+            test: true
+          - dir: public-portal
+            name: Public Portal
+            slug: public-portal
+            node-version: '22.23.2'
+            build: true
+            lint: true
+            test: true
+          - dir: mobile-app
+            name: Mobile App
+            slug: mobile-app
+            node-version: '22.23.2'
+            build: false
+            lint: true
+            test: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.dir }}/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Enforce patched Multer version
+        if: ${{ matrix.dir == 'server' }}
+        run: node scripts/checkMulterVersion.js
+
+      # Restore the prebuilt @ibosys/* dist the Vite aliases point at.
+      - name: Restore design-tokens dist
+        uses: actions/download-artifact@v4
+        with:
+          name: shared-dist-design-tokens
+          path: packages/design-tokens/dist
+
+      - name: Restore ui dist
+        uses: actions/download-artifact@v4
+        with:
+          name: shared-dist-ui
+          path: packages/ui/dist
+
+      - name: Restore api dist
+        uses: actions/download-artifact@v4
+        with:
+          name: shared-dist-api
+          path: packages/api/dist
+
+      - name: Lint
+        if: ${{ matrix.lint }}
+        run: npm run lint
+
+      - name: Test
+        if: ${{ matrix.test }}
+        run: npm run test:ci
+
+      # mobile-app has no bundler build script; its gate is typecheck.
+      - name: Typecheck
+        if: ${{ matrix.dir == 'mobile-app' }}
+        run: npm run typecheck
+
+      - name: Verify Expo dependency compatibility
+        if: ${{ matrix.dir == 'mobile-app' }}
+        run: |
+          npx expo install --check
+          npx expo-doctor
+
+      - name: Build
+        if: ${{ matrix.build }}
+        run: npm run build
+
+      # verify-token-bridge runs on a fresh runner, so the compiled CSS must be
+      # handed over explicitly. `client/dist` is gitignored and is not present
+      # on the verifying runner after checkout.
+      - name: Upload app dist for token bridge verification
+        if: ${{ matrix.build }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-dist-${{ matrix.slug }}
+          path: ${{ matrix.dir }}/dist
+          retention-days: 1
+
+  verify-token-bridge:
+    # Critical guard: a green build does NOT prove the design tokens reached the
+    # CSS. Per .agents/rules/zero_error_protocol.md, verify by counting token
+    # definitions, not by build success.
+    name: Verify Token Bridge
+    needs: lint-build-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Restore client dist
+        uses: actions/download-artifact@v4
+        with:
+          name: app-dist-client
+          path: client/dist
+
+      - name: Restore public-portal dist
+        uses: actions/download-artifact@v4
+        with:
+          name: app-dist-public-portal
+          path: public-portal/dist
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Verify token definitions exist in compiled CSS
+        run: |
+          set -euo pipefail
+          for app in client public-portal; do
+            css_file=$(find "$app/dist/assets" -name 'index-*.css' | head -1)
+            if [ -z "$css_file" ]; then
+              echo "ERROR: no compiled CSS found in $app/dist/assets"
+              exit 1
+            fi
+            # Minified CSS may be one line; count marker occurrences, not lines.
+            defs=$(grep -o -- '--ibosys-' "$css_file" | wc -l)
+            echo "$app: $defs token definitions ($css_file)"
+            if [ "$defs" -lt 150 ]; then
+              echo "ERROR: too few token definitions in $app (expected >= 150)"
+              exit 1
+            fi
+          done
+
+  dependency-audit:
+    # Audit failures MUST fail the build. Do not append '|| true' here.
+    name: Dependency Audit (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - dir: server
+            name: Server
+            node-version: '22.23.2'
+          - dir: client
+            name: Client
+            node-version: '22.23.2'
+          - dir: public-portal
+            name: Public Portal
+            node-version: '22.23.2'
+          - dir: packages/design-tokens
+            name: Design Tokens
+            node-version: '22.23.2'
+          - dir: packages/ui
+            name: UI Components
+            node-version: '22.23.2'
+          - dir: packages/api
+            name: API Client
+            node-version: '22.23.2'
+          - dir: mobile-app
+            name: Mobile App
+            node-version: '22.23.2'
+    defaults:
+      run:
+        working-directory: ${{ matrix.dir }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.dir }}/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit
+        run: npm audit --audit-level=high
+
+  check-openapi-sync:
+    name: Check OpenAPI Spec Sync
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify OpenAPI spec exists
+        run: test -f docs/openapi.yaml
+
+      - name: Basic OpenAPI structure validation
+        run: |
+          set -euo pipefail
+          grep -q "openapi: 3.0" docs/openapi.yaml
+          grep -q "info:" docs/openapi.yaml
+          grep -q "paths:" docs/openapi.yaml
+          grep -q "components:" docs/openapi.yaml
+          echo "OpenAPI spec structure OK"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
